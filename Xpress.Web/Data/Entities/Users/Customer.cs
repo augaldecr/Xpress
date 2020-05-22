@@ -2,8 +2,12 @@
 
 namespace Xpress.Web.Data.Entities.Users
 {
-    public class Customer : User
+    public class Customer : IEntity
     {
+        public int Id { get; set; }
+
+        public User User { get; set; }
+
         public virtual ICollection<Package> Packages { get; set; }
     }
 }

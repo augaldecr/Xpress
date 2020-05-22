@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Xpress.Web.Data.Entities.Common;
 
 namespace Xpress.Web.Data.Entities
 {

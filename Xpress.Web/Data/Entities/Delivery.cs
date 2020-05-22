@@ -6,8 +6,10 @@ using Xpress.Web.Data.Entities.Users;
 
 namespace Xpress.Web.Data.Entities
 {
-    public class Delivery
+    public class Delivery : IEntity
     {
+        public int Id { get; set; }
+
         [Display(Name = "Delivery guy")]
         [Required(ErrorMessage = "The field {0} is required")]
         public DeliveryGuy DeliveryGuy { get; set; }

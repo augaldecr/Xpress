@@ -1,7 +1,11 @@
 ﻿namespace Xpress.Web.Data.Entities.Users
 {
-    public class FranchiseAdmin : User 
+    public class FranchiseAdmin : IEntity 
     {
+        public int Id { get; set; }
+
+        public User User { get; set; }
+
         public Franchise Franchise { get; set; }
     }
 }
