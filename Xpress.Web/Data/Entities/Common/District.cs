@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Xpress.Web.Data.Entities.Common
 {
     //Distrito
-    public class District : BasicEntity, IEntity
+    public class District : BasicEntity
     {
         [Required(ErrorMessage = "El campo {0} es requerido.")]
         [Display(Name = "Cantón")]

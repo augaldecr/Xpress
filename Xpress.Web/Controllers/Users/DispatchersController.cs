@@ -6,26 +6,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Xpress.Web.Data;
-using Xpress.Web.Data.Entities;
+using Xpress.Web.Data.Entities.Users;
 
-namespace Xpress.Web.Controllers
+namespace Xpress.Web.Controllers.Users
 {
-    public class SubsidiaryProductsController : Controller
+    public class DispatchersController : Controller
     {
         private readonly DataContext _context;
 
-        public SubsidiaryProductsController(DataContext context)
+        public DispatchersController(DataContext context)
         {
             _context = context;
         }
 
-        // GET: SubsidiaryProducts
+        // GET: Dispatchers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.SubsidiaryProducts.ToListAsync());
+            return View(await _context.Dispatchers.ToListAsync());
         }
 
-        // GET: SubsidiaryProducts/Details/5
+        // GET: Dispatchers/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +33,39 @@ namespace Xpress.Web.Controllers
                 return NotFound();
             }
 
-            var subsidiaryProduct = await _context.SubsidiaryProducts
+            var dispatcher = await _context.Dispatchers
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (subsidiaryProduct == null)
+            if (dispatcher == null)
             {
                 return NotFound();
             }
 
-            return View(subsidiaryProduct);
+            return View(dispatcher);
         }
 
-        // GET: SubsidiaryProducts/Create
+        // GET: Dispatchers/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: SubsidiaryProducts/Create
+        // POST: Dispatchers/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Rating,Description,Barcode,Price,PicturePath,Id,Name")] SubsidiaryProduct subsidiaryProduct)
+        public async Task<IActionResult> Create([Bind("Id")] Dispatcher dispatcher)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(subsidiaryProduct);
+                _context.Add(dispatcher);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(subsidiaryProduct);
+            return View(dispatcher);
         }
 
-        // GET: SubsidiaryProducts/Edit/5
+        // GET: Dispatchers/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +73,22 @@ namespace Xpress.Web.Controllers
                 return NotFound();
             }
 
-            var subsidiaryProduct = await _context.SubsidiaryProducts.FindAsync(id);
-            if (subsidiaryProduct == null)
+            var dispatcher = await _context.Dispatchers.FindAsync(id);
+            if (dispatcher == null)
             {
                 return NotFound();
             }
-            return View(subsidiaryProduct);
+            return View(dispatcher);
         }
 
-        // POST: SubsidiaryProducts/Edit/5
+        // POST: Dispatchers/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Rating,Description,Barcode,Price,PicturePath,Id,Name")] SubsidiaryProduct subsidiaryProduct)
+        public async Task<IActionResult> Edit(int id, [Bind("Id")] Dispatcher dispatcher)
         {
-            if (id != subsidiaryProduct.Id)
+            if (id != dispatcher.Id)
             {
                 return NotFound();
             }
@@ -97,12 +97,12 @@ namespace Xpress.Web.Controllers
             {
                 try
                 {
-                    _context.Update(subsidiaryProduct);
+                    _context.Update(dispatcher);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SubsidiaryProductExists(subsidiaryProduct.Id))
+                    if (!DispatcherExists(dispatcher.Id))
                     {
                         return NotFound();
                     }
@@ -113,10 +113,10 @@ namespace Xpress.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(subsidiaryProduct);
+            return View(dispatcher);
         }
 
-        // GET: SubsidiaryProducts/Delete/5
+        // GET: Dispatchers/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,30 +124,30 @@ namespace Xpress.Web.Controllers
                 return NotFound();
             }
 
-            var subsidiaryProduct = await _context.SubsidiaryProducts
+            var dispatcher = await _context.Dispatchers
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (subsidiaryProduct == null)
+            if (dispatcher == null)
             {
                 return NotFound();
             }
 
-            return View(subsidiaryProduct);
+            return View(dispatcher);
         }
 
-        // POST: SubsidiaryProducts/Delete/5
+        // POST: Dispatchers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var subsidiaryProduct = await _context.SubsidiaryProducts.FindAsync(id);
-            _context.SubsidiaryProducts.Remove(subsidiaryProduct);
+            var dispatcher = await _context.Dispatchers.FindAsync(id);
+            _context.Dispatchers.Remove(dispatcher);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool SubsidiaryProductExists(int id)
+        private bool DispatcherExists(int id)
         {
-            return _context.SubsidiaryProducts.Any(e => e.Id == id);
+            return _context.Dispatchers.Any(e => e.Id == id);
         }
     }
 }

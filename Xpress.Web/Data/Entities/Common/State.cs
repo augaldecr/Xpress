@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Xpress.Web.Data.Entities.Common
 {
-    public class State : BasicEntity, IEntity
+    public class State : BasicEntity
     {
         [Required(ErrorMessage = "El campo {0} es requerido.")]
         [Display(Name = "País")]

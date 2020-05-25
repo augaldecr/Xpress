@@ -16,8 +16,8 @@ namespace Xpress.Web.Data.Entities.Payments
         public DateTime Date { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es requerido.")]
-        [Display(Name = "Tipo de pago")]
-        public PaymentType PaymentType { get; set; }
+        [Display(Name = "Método de pago")]
+        public PaymentMethod PaymentMethod { get; set; }
 
         [Required(ErrorMessage = "El campo {0} es requerido.")]
         [Display(Name = "Monto")]

@@ -20,9 +20,19 @@ namespace Xpress.Web.Data.Entities
         [Required(ErrorMessage = "The field {0} is required")]
         public string PicturePath { get; set; }
 
+        //Type of product (Comida thai, abarrote, farmacia, etc)
+        [Display(Name = "Category")]
+        [Required(ErrorMessage = "The field {0} is required")]
+        public Category Category { get; set; }
+
+        [Required(ErrorMessage = "The field {0} is required")]
+        public Franchise Franchise { get; set; }
+
         [Display(Name = "Picture")]
         public string PictureFullPath => string.IsNullOrEmpty(PicturePath)
             ? "https://taxiwebcr.azurewebsites.net//images/noimage.png"
             : $"https://taxicr.blob.core.windows.net/users/{PicturePath}";
+
+        public bool Active { get; set; }
     }
 }

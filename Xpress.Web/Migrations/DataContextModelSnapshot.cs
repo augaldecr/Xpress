@@ -26,12 +26,17 @@ namespace Xpress.Web.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("FranchiseId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(50)")
                         .HasMaxLength(50);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FranchiseId");
 
                     b.ToTable("Categories");
                 });
@@ -263,8 +268,8 @@ namespace Xpress.Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
+                    b.Property<double>("Rating")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
@@ -347,6 +352,62 @@ namespace Xpress.Web.Migrations
                     b.ToTable("Packages");
                 });
 
+            modelBuilder.Entity("Xpress.Web.Data.Entities.Payments.Card", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("GoodThru")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OwnerName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.Property<string>("SecurityNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(3)")
+                        .HasMaxLength(3);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("Cards");
+                });
+
+            modelBuilder.Entity("Xpress.Web.Data.Entities.Payments.DeliveryPayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("DeliveryId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PaymentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeliveryId");
+
+                    b.HasIndex("PaymentId");
+
+                    b.ToTable("DeliveryPayments");
+                });
+
             modelBuilder.Entity("Xpress.Web.Data.Entities.Payments.Payment", b =>
                 {
                     b.Property<int>("Id")
@@ -360,7 +421,7 @@ namespace Xpress.Web.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("PaymentTypeId")
+                    b.Property<int>("PaymentMethodId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
@@ -369,7 +430,7 @@ namespace Xpress.Web.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PaymentTypeId");
+                    b.HasIndex("PaymentMethodId");
 
                     b.HasIndex("UserId");
 
@@ -393,21 +454,26 @@ namespace Xpress.Web.Migrations
                     b.ToTable("PaymentMethods");
                 });
 
-            modelBuilder.Entity("Xpress.Web.Data.Entities.Payments.PaymentType", b =>
+            modelBuilder.Entity("Xpress.Web.Data.Entities.Payments.ProductPayment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)")
-                        .HasMaxLength(50);
+                    b.Property<int?>("PaymentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductToDeliverId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaymentTypes");
+                    b.HasIndex("PaymentId");
+
+                    b.HasIndex("ProductToDeliverId");
+
+                    b.ToTable("ProductPayments");
                 });
 
             modelBuilder.Entity("Xpress.Web.Data.Entities.Product", b =>
@@ -417,18 +483,20 @@ namespace Xpress.Web.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Barcode")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(500)")
                         .HasMaxLength(500);
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("FranchiseId")
+                    b.Property<int>("FranchiseId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -444,18 +512,35 @@ namespace Xpress.Web.Migrations
                         .HasColumnType("float")
                         .HasMaxLength(50);
 
-                    b.Property<int?>("SubsidiaryId")
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("FranchiseId");
+
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("Xpress.Web.Data.Entities.ProductToDeliver", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("PackageId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FranchiseId");
+                    b.HasIndex("PackageId");
 
-                    b.HasIndex("SubsidiaryId");
+                    b.HasIndex("ProductId");
 
-                    b.ToTable("Products");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("Product");
+                    b.ToTable("ProductsToDeliver");
                 });
 
             modelBuilder.Entity("Xpress.Web.Data.Entities.Subsidiary", b =>
@@ -468,6 +553,9 @@ namespace Xpress.Web.Migrations
                     b.Property<string>("Address")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("CardOnly")
+                        .HasColumnType("bit");
 
                     b.Property<int>("FranchiseId")
                         .HasColumnType("int");
@@ -482,6 +570,34 @@ namespace Xpress.Web.Migrations
                     b.HasIndex("TownId");
 
                     b.ToTable("Subsidiaries");
+                });
+
+            modelBuilder.Entity("Xpress.Web.Data.Entities.SubsidiaryProduct", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Rating")
+                        .HasColumnType("float");
+
+                    b.Property<int>("SubsidiaryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("SubsidiaryId");
+
+                    b.ToTable("SubsidiaryProducts");
                 });
 
             modelBuilder.Entity("Xpress.Web.Data.Entities.Users.Admin", b =>
@@ -535,16 +651,12 @@ namespace Xpress.Web.Migrations
                     b.ToTable("DeliveryGuys");
                 });
 
-            modelBuilder.Entity("Xpress.Web.Data.Entities.Users.Employee", b =>
+            modelBuilder.Entity("Xpress.Web.Data.Entities.Users.Dispatcher", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("SubsidiaryId")
                         .HasColumnType("int");
@@ -558,9 +670,7 @@ namespace Xpress.Web.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Employees");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("Employee");
+                    b.ToTable("Dispatchers");
                 });
 
             modelBuilder.Entity("Xpress.Web.Data.Entities.Users.FranchiseAdmin", b =>
@@ -583,6 +693,28 @@ namespace Xpress.Web.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("FranchiseAdmins");
+                });
+
+            modelBuilder.Entity("Xpress.Web.Data.Entities.Users.SubsidiaryAdmin", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("SubsidiaryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubsidiaryId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SubsidiaryAdmins");
                 });
 
             modelBuilder.Entity("Xpress.Web.Data.User", b =>
@@ -648,38 +780,13 @@ namespace Xpress.Web.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("Xpress.Web.Data.Entities.ProductToDeliver", b =>
+            modelBuilder.Entity("Xpress.Web.Data.Entities.Category", b =>
                 {
-                    b.HasBaseType("Xpress.Web.Data.Entities.Product");
-
-                    b.Property<int?>("PackageId")
-                        .HasColumnType("int");
-
-                    b.HasIndex("PackageId");
-
-                    b.HasDiscriminator().HasValue("ProductToDeliver");
-                });
-
-            modelBuilder.Entity("Xpress.Web.Data.Entities.SubsidiaryProduct", b =>
-                {
-                    b.HasBaseType("Xpress.Web.Data.Entities.Product");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SubsidiaryId1")
-                        .HasColumnType("int");
-
-                    b.HasIndex("SubsidiaryId1");
-
-                    b.HasDiscriminator().HasValue("SubsidiaryProduct");
-                });
-
-            modelBuilder.Entity("Xpress.Web.Data.Entities.Users.SubsidiaryAdmin", b =>
-                {
-                    b.HasBaseType("Xpress.Web.Data.Entities.Users.Employee");
-
-                    b.HasDiscriminator().HasValue("SubsidiaryAdmin");
+                    b.HasOne("Xpress.Web.Data.Entities.Franchise", "Franchise")
+                        .WithMany()
+                        .HasForeignKey("FranchiseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Xpress.Web.Data.Entities.Common.County", b =>
@@ -774,11 +881,29 @@ namespace Xpress.Web.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Xpress.Web.Data.Entities.Payments.Card", b =>
+                {
+                    b.HasOne("Xpress.Web.Data.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId");
+                });
+
+            modelBuilder.Entity("Xpress.Web.Data.Entities.Payments.DeliveryPayment", b =>
+                {
+                    b.HasOne("Xpress.Web.Data.Entities.Delivery", "Delivery")
+                        .WithMany()
+                        .HasForeignKey("DeliveryId");
+
+                    b.HasOne("Xpress.Web.Data.Entities.Payments.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId");
+                });
+
             modelBuilder.Entity("Xpress.Web.Data.Entities.Payments.Payment", b =>
                 {
-                    b.HasOne("Xpress.Web.Data.Entities.Payments.PaymentType", "PaymentType")
+                    b.HasOne("Xpress.Web.Data.Entities.Payments.PaymentMethod", "PaymentMethod")
                         .WithMany()
-                        .HasForeignKey("PaymentTypeId")
+                        .HasForeignKey("PaymentMethodId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -789,15 +914,41 @@ namespace Xpress.Web.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Xpress.Web.Data.Entities.Payments.ProductPayment", b =>
+                {
+                    b.HasOne("Xpress.Web.Data.Entities.Payments.Payment", "Payment")
+                        .WithMany()
+                        .HasForeignKey("PaymentId");
+
+                    b.HasOne("Xpress.Web.Data.Entities.ProductToDeliver", "ProductToDeliver")
+                        .WithMany()
+                        .HasForeignKey("ProductToDeliverId");
+                });
+
             modelBuilder.Entity("Xpress.Web.Data.Entities.Product", b =>
                 {
-                    b.HasOne("Xpress.Web.Data.Entities.Franchise", null)
-                        .WithMany("Products")
-                        .HasForeignKey("FranchiseId");
+                    b.HasOne("Xpress.Web.Data.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("Xpress.Web.Data.Entities.Subsidiary", null)
+                    b.HasOne("Xpress.Web.Data.Entities.Franchise", "Franchise")
                         .WithMany("Products")
-                        .HasForeignKey("SubsidiaryId");
+                        .HasForeignKey("FranchiseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Xpress.Web.Data.Entities.ProductToDeliver", b =>
+                {
+                    b.HasOne("Xpress.Web.Data.Entities.Package", "Package")
+                        .WithMany("Products")
+                        .HasForeignKey("PackageId");
+
+                    b.HasOne("Xpress.Web.Data.Entities.SubsidiaryProduct", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
                 });
 
             modelBuilder.Entity("Xpress.Web.Data.Entities.Subsidiary", b =>
@@ -811,6 +962,19 @@ namespace Xpress.Web.Migrations
                     b.HasOne("Xpress.Web.Data.Entities.Common.Town", "Town")
                         .WithMany()
                         .HasForeignKey("TownId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Xpress.Web.Data.Entities.SubsidiaryProduct", b =>
+                {
+                    b.HasOne("Xpress.Web.Data.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId");
+
+                    b.HasOne("Xpress.Web.Data.Entities.Subsidiary", "Subsidiary")
+                        .WithMany("Products")
+                        .HasForeignKey("SubsidiaryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -836,7 +1000,7 @@ namespace Xpress.Web.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("Xpress.Web.Data.Entities.Users.Employee", b =>
+            modelBuilder.Entity("Xpress.Web.Data.Entities.Users.Dispatcher", b =>
                 {
                     b.HasOne("Xpress.Web.Data.Entities.Subsidiary", "Subsidiary")
                         .WithMany()
@@ -858,20 +1022,15 @@ namespace Xpress.Web.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("Xpress.Web.Data.Entities.ProductToDeliver", b =>
-                {
-                    b.HasOne("Xpress.Web.Data.Entities.Package", "Package")
-                        .WithMany("Products")
-                        .HasForeignKey("PackageId");
-                });
-
-            modelBuilder.Entity("Xpress.Web.Data.Entities.SubsidiaryProduct", b =>
+            modelBuilder.Entity("Xpress.Web.Data.Entities.Users.SubsidiaryAdmin", b =>
                 {
                     b.HasOne("Xpress.Web.Data.Entities.Subsidiary", "Subsidiary")
                         .WithMany()
-                        .HasForeignKey("SubsidiaryId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SubsidiaryId");
+
+                    b.HasOne("Xpress.Web.Data.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,6 +1,6 @@
 ﻿namespace Xpress.Web.Data.Entities.Users
 {
-    public class Employee : IEntity
+    public abstract class Employee : IEntity
     {
         public int Id { get; set; }
 

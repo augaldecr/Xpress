@@ -8,19 +8,6 @@ namespace Xpress.Web.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Categories",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Categories", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Countries",
                 columns: table => new
                 {
@@ -70,19 +57,6 @@ namespace Xpress.Web.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PaymentMethods", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PaymentTypes",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PaymentTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -145,7 +119,7 @@ namespace Xpress.Web.Migrations
                     PicturePath = table.Column<string>(nullable: false),
                     FranchiseTypeId = table.Column<int>(nullable: false),
                     MarketSegmentId = table.Column<int>(nullable: true),
-                    Rating = table.Column<int>(nullable: false)
+                    Rating = table.Column<double>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -178,6 +152,29 @@ namespace Xpress.Web.Migrations
                     table.ForeignKey(
                         name: "FK_Admins_User_UserId",
                         column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Cards",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OwnerName = table.Column<string>(maxLength: 50, nullable: false),
+                    Number = table.Column<string>(nullable: false),
+                    GoodThru = table.Column<DateTime>(nullable: false),
+                    SecurityNumber = table.Column<string>(maxLength: 3, nullable: false),
+                    OwnerId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cards", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Cards_User_OwnerId",
+                        column: x => x.OwnerId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -229,16 +226,16 @@ namespace Xpress.Web.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(nullable: false),
                     Date = table.Column<DateTime>(nullable: false),
-                    PaymentTypeId = table.Column<int>(nullable: false),
+                    PaymentMethodId = table.Column<int>(nullable: false),
                     Amount = table.Column<float>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Payments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Payments_PaymentTypes_PaymentTypeId",
-                        column: x => x.PaymentTypeId,
-                        principalTable: "PaymentTypes",
+                        name: "FK_Payments_PaymentMethods_PaymentMethodId",
+                        column: x => x.PaymentMethodId,
+                        principalTable: "PaymentMethods",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -265,6 +262,26 @@ namespace Xpress.Web.Migrations
                         name: "FK_Counties_States_StateId",
                         column: x => x.StateId,
                         principalTable: "States",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(maxLength: 50, nullable: false),
+                    FranchiseId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Categories_Franchises_FranchiseId",
+                        column: x => x.FranchiseId,
+                        principalTable: "Franchises",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -350,6 +367,38 @@ namespace Xpress.Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Products",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(maxLength: 50, nullable: false),
+                    Description = table.Column<string>(maxLength: 500, nullable: true),
+                    Barcode = table.Column<string>(nullable: true),
+                    Price = table.Column<double>(maxLength: 50, nullable: false),
+                    PicturePath = table.Column<string>(nullable: false),
+                    CategoryId = table.Column<int>(nullable: false),
+                    FranchiseId = table.Column<int>(nullable: false),
+                    Active = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Products", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Products_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Products_Franchises_FranchiseId",
+                        column: x => x.FranchiseId,
+                        principalTable: "Franchises",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "DeliveryDetails",
                 columns: table => new
                 {
@@ -369,6 +418,32 @@ namespace Xpress.Web.Migrations
                         principalTable: "Deliveries",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DeliveryPayments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PaymentId = table.Column<int>(nullable: true),
+                    DeliveryId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeliveryPayments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeliveryPayments_Deliveries_DeliveryId",
+                        column: x => x.DeliveryId,
+                        principalTable: "Deliveries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_DeliveryPayments_Payments_PaymentId",
+                        column: x => x.PaymentId,
+                        principalTable: "Payments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -440,7 +515,8 @@ namespace Xpress.Web.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FranchiseId = table.Column<int>(nullable: false),
                     TownId = table.Column<int>(nullable: false),
-                    Address = table.Column<string>(nullable: false)
+                    Address = table.Column<string>(nullable: false),
+                    CardOnly = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -460,26 +536,25 @@ namespace Xpress.Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Employees",
+                name: "Dispatchers",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(nullable: true),
-                    SubsidiaryId = table.Column<int>(nullable: true),
-                    Discriminator = table.Column<string>(nullable: false)
+                    SubsidiaryId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Employees", x => x.Id);
+                    table.PrimaryKey("PK_Dispatchers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Employees_Subsidiaries_SubsidiaryId",
+                        name: "FK_Dispatchers_Subsidiaries_SubsidiaryId",
                         column: x => x.SubsidiaryId,
                         principalTable: "Subsidiaries",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Employees_User_UserId",
+                        name: "FK_Dispatchers_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
@@ -487,56 +562,125 @@ namespace Xpress.Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Products",
+                name: "SubsidiaryAdmins",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(maxLength: 50, nullable: false),
-                    Description = table.Column<string>(maxLength: 500, nullable: true),
-                    Barcode = table.Column<string>(nullable: true),
-                    Price = table.Column<double>(maxLength: 50, nullable: false),
-                    PicturePath = table.Column<string>(nullable: false),
-                    Discriminator = table.Column<string>(nullable: false),
-                    FranchiseId = table.Column<int>(nullable: true),
-                    SubsidiaryId = table.Column<int>(nullable: true),
-                    PackageId = table.Column<int>(nullable: true),
-                    Rating = table.Column<int>(nullable: true),
-                    SubsidiaryId1 = table.Column<int>(nullable: true)
+                    UserId = table.Column<string>(nullable: true),
+                    SubsidiaryId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Products", x => x.Id);
+                    table.PrimaryKey("PK_SubsidiaryAdmins", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Products_Franchises_FranchiseId",
-                        column: x => x.FranchiseId,
-                        principalTable: "Franchises",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Products_Subsidiaries_SubsidiaryId",
+                        name: "FK_SubsidiaryAdmins_Subsidiaries_SubsidiaryId",
                         column: x => x.SubsidiaryId,
                         principalTable: "Subsidiaries",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Products_Packages_PackageId",
+                        name: "FK_SubsidiaryAdmins_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SubsidiaryProducts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(nullable: true),
+                    Rating = table.Column<double>(nullable: false),
+                    SubsidiaryId = table.Column<int>(nullable: false),
+                    Active = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubsidiaryProducts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SubsidiaryProducts_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SubsidiaryProducts_Subsidiaries_SubsidiaryId",
+                        column: x => x.SubsidiaryId,
+                        principalTable: "Subsidiaries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductsToDeliver",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(nullable: true),
+                    PackageId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductsToDeliver", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductsToDeliver_Packages_PackageId",
                         column: x => x.PackageId,
                         principalTable: "Packages",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Products_Subsidiaries_SubsidiaryId1",
-                        column: x => x.SubsidiaryId1,
-                        principalTable: "Subsidiaries",
+                        name: "FK_ProductsToDeliver_SubsidiaryProducts_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "SubsidiaryProducts",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductPayments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PaymentId = table.Column<int>(nullable: true),
+                    ProductToDeliverId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductPayments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductPayments_Payments_PaymentId",
+                        column: x => x.PaymentId,
+                        principalTable: "Payments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ProductPayments_ProductsToDeliver_ProductToDeliverId",
+                        column: x => x.ProductToDeliverId,
+                        principalTable: "ProductsToDeliver",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Admins_UserId",
                 table: "Admins",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cards_OwnerId",
+                table: "Cards",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Categories_FranchiseId",
+                table: "Categories",
+                column: "FranchiseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Counties_StateId",
@@ -564,19 +708,29 @@ namespace Xpress.Web.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Districts_CountyId",
-                table: "Districts",
-                column: "CountyId");
+                name: "IX_DeliveryPayments_DeliveryId",
+                table: "DeliveryPayments",
+                column: "DeliveryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Employees_SubsidiaryId",
-                table: "Employees",
+                name: "IX_DeliveryPayments_PaymentId",
+                table: "DeliveryPayments",
+                column: "PaymentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Dispatchers_SubsidiaryId",
+                table: "Dispatchers",
                 column: "SubsidiaryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Employees_UserId",
-                table: "Employees",
+                name: "IX_Dispatchers_UserId",
+                table: "Dispatchers",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Districts_CountyId",
+                table: "Districts",
+                column: "CountyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FranchiseAdmins_FranchiseId",
@@ -619,9 +773,9 @@ namespace Xpress.Web.Migrations
                 column: "SenderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payments_PaymentTypeId",
+                name: "IX_Payments_PaymentMethodId",
                 table: "Payments",
-                column: "PaymentTypeId");
+                column: "PaymentMethodId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_UserId",
@@ -629,24 +783,34 @@ namespace Xpress.Web.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductPayments_PaymentId",
+                table: "ProductPayments",
+                column: "PaymentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductPayments_ProductToDeliverId",
+                table: "ProductPayments",
+                column: "ProductToDeliverId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_CategoryId",
+                table: "Products",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_FranchiseId",
                 table: "Products",
                 column: "FranchiseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_SubsidiaryId",
-                table: "Products",
-                column: "SubsidiaryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Products_PackageId",
-                table: "Products",
+                name: "IX_ProductsToDeliver_PackageId",
+                table: "ProductsToDeliver",
                 column: "PackageId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Products_SubsidiaryId1",
-                table: "Products",
-                column: "SubsidiaryId1");
+                name: "IX_ProductsToDeliver_ProductId",
+                table: "ProductsToDeliver",
+                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_States_CountryId",
@@ -664,6 +828,26 @@ namespace Xpress.Web.Migrations
                 column: "TownId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SubsidiaryAdmins_SubsidiaryId",
+                table: "SubsidiaryAdmins",
+                column: "SubsidiaryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubsidiaryAdmins_UserId",
+                table: "SubsidiaryAdmins",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubsidiaryProducts_ProductId",
+                table: "SubsidiaryProducts",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubsidiaryProducts_SubsidiaryId",
+                table: "SubsidiaryProducts",
+                column: "SubsidiaryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Towns_DistrictId",
                 table: "Towns",
                 column: "DistrictId");
@@ -675,40 +859,40 @@ namespace Xpress.Web.Migrations
                 name: "Admins");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "Cards");
 
             migrationBuilder.DropTable(
                 name: "DeliveryDetails");
 
             migrationBuilder.DropTable(
-                name: "Employees");
+                name: "DeliveryPayments");
+
+            migrationBuilder.DropTable(
+                name: "Dispatchers");
 
             migrationBuilder.DropTable(
                 name: "FranchiseAdmins");
 
             migrationBuilder.DropTable(
-                name: "PaymentMethods");
+                name: "ProductPayments");
+
+            migrationBuilder.DropTable(
+                name: "SubsidiaryAdmins");
 
             migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "ProductsToDeliver");
 
             migrationBuilder.DropTable(
-                name: "PaymentTypes");
-
-            migrationBuilder.DropTable(
-                name: "Subsidiaries");
+                name: "PaymentMethods");
 
             migrationBuilder.DropTable(
                 name: "Packages");
 
             migrationBuilder.DropTable(
-                name: "Franchises");
-
-            migrationBuilder.DropTable(
-                name: "Towns");
+                name: "SubsidiaryProducts");
 
             migrationBuilder.DropTable(
                 name: "Customers");
@@ -717,22 +901,37 @@ namespace Xpress.Web.Migrations
                 name: "Deliveries");
 
             migrationBuilder.DropTable(
+                name: "Products");
+
+            migrationBuilder.DropTable(
+                name: "Subsidiaries");
+
+            migrationBuilder.DropTable(
+                name: "DeliveryGuys");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "Towns");
+
+            migrationBuilder.DropTable(
+                name: "User");
+
+            migrationBuilder.DropTable(
+                name: "Franchises");
+
+            migrationBuilder.DropTable(
+                name: "Districts");
+
+            migrationBuilder.DropTable(
                 name: "FranchiseTypes");
 
             migrationBuilder.DropTable(
                 name: "MarketSegments");
 
             migrationBuilder.DropTable(
-                name: "Districts");
-
-            migrationBuilder.DropTable(
-                name: "DeliveryGuys");
-
-            migrationBuilder.DropTable(
                 name: "Counties");
-
-            migrationBuilder.DropTable(
-                name: "User");
 
             migrationBuilder.DropTable(
                 name: "States");

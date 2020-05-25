@@ -33,7 +33,7 @@ namespace Xpress.Web.Data.Entities
         [Display(Name = "Market segment")]
         public MarketSegment MarketSegment { get; set; }
 
-        public int Rating { get; set; }
+        public double Rating { get; set; }
 
         public ICollection<Product> Products { get; set; }
     }

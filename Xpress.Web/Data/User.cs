@@ -21,5 +21,8 @@ namespace Xpress.Web.Data
         public string PictureFullPath => string.IsNullOrEmpty(PicturePath)
             ? "https://taxiwebcr.azurewebsites.net//images/noimage.png"
             : $"https://taxicr.blob.core.windows.net/users/{PicturePath}";
+
+        [Display(Name = "Full name")]
+        public string FullName => $"{LastName} {FirstName}";
     }
 }

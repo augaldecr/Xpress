@@ -3,7 +3,7 @@
 namespace Xpress.Web.Data.Entities.Common
 {
     //Ciudad, pueblo, villa, etc..
-    public class Town : BasicEntity, IEntity
+    public class Town : BasicEntity
     {
         [Required(ErrorMessage = "El campo {0} es requerido.")]
         [Display(Name = "Distrito")]

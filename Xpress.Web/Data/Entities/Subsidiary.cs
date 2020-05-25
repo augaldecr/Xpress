@@ -17,6 +17,10 @@ namespace Xpress.Web.Data.Entities
         [Required(ErrorMessage = "The field {0} is required")]
         public string Address { get; set; }
 
-        public virtual ICollection<Product> Products { get; set; }
+        [Display(Name = "¿Sólo tarjeta? No efectivo")]
+        [Required(ErrorMessage = "The field {0} is required")]
+        public bool CardOnly { get; set; }
+
+        public virtual ICollection<SubsidiaryProduct> Products { get; set; }
     }
 }

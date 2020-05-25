@@ -1,7 +1,11 @@
 ﻿namespace Xpress.Web.Data.Entities
 {
-    public class ProductToDeliver : Product
+    public class ProductToDeliver : IEntity
     {
+        public int Id { get; set; }
+
+        public SubsidiaryProduct Product { get; set; }
+
         public Package Package { get; set; }
     }
 }

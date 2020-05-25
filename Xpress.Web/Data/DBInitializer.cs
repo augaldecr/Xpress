@@ -1,123 +1,560 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Xpress.Common;
+using Xpress.Web.Data.Entities;
 using Xpress.Web.Data.Entities.Common;
+using Xpress.Web.Data.Entities.Payments;
+using Xpress.Web.Data.Entities.Users;
+using Xpress.Web.Helpers;
 
-namespace Xpress.Web.Data.Entities
+namespace Xpress.Web.Data
 {
     public class DBInitializer
     {
 
         private readonly DataContext _dataContext;
+        private readonly IUserHelper _userHelper;
 
-        public DBInitializer(DataContext dataContext)
+        public DBInitializer(DataContext dataContext, 
+            IUserHelper userHelper)
         {
             _dataContext = dataContext;
+            this._userHelper = userHelper;
         }
 
         public async Task SeedAsync()
         {
             await _dataContext.Database.EnsureCreatedAsync();
 
+            //Geo
             await CheckCountriesAsync();
             await CheckStatesAsync();
             await CheckCountiesAsync();
             await CheckDistrictsAsync();
             await CheckTownsAsync();
 
+            //Payment's section
+            await CheckPaymentMethodsAsync();
+
+            //Franchise's section
+            await CheckFranchisesTypesAsync();
+            await CheckCategoriesAsync();
+            await CheckMarketSegmentsAsync();
+            
+
+            //Example's section
+            await CheckFranchisesAsync();
+            await CheckSubsidiarysAsync();
+            await CheckSubsidiaryProductsAsync();
+            await CheckDeliveryAsync();
+            await CheckDeliveryDetailsAsync();
+            await CheckProductAsync();
+            await CheckProductToDeliverAsync();
+            await CheckPackageAsync();
+            await CheckCardsAsync();
+            await CheckPaymentsAsync();
+            await CheckProductPayments();
+            await CheckDeliveryPayment();
+
+            //User's section
             await CheckRoles();
 
-            User admin = await CheckUserAsync("Alonso", "Ugalde", "Aguilar",
-                "augaldecr@gmail.com", "85090266", "Coopevigua 2", "Admin");
-            User customer = await CheckUserAsync("Alonso", "Ugalde", "Aguilar",
-                "augaldecr@hotmail.com", "85090266", "Coopevigua 2", "Customer");
-            User trainer = await CheckUserAsync("Alonso", "Ugalde", "Aguilar",
-                "alonsougaldecr@gmail.com", "85090266", "Coopevigua 2", "Trainer");
+            User admin = await CheckUserAsync("Alonso", "Ugalde",
+                "augaldecr@gmail.com", "85090266", "Admin");
+            User customer = await CheckUserAsync("Alonso", "Ugalde",
+                "augaldecr@hotmail.com", "85090266", "Customer");
+            User deliveryGuy = await CheckUserAsync("Alonso", "Ugalde",
+                "alonsougaldecr@gmail.com", "85090266", "DeliveryGuy");
+            User dispatcher = await CheckUserAsync("Alonso", "Ugalde",
+                "augaldecr@cajimenez.com", "85090266", "Dispatcher");
+            User franchiseAdmin = await CheckUserAsync("Alonso", "Ugalde",
+                "profeugaldecr@gmail.com", "85090266", "FranchiseAdmin");
+            User subsidiaryAdmin = await CheckUserAsync("Alonso", "Ugalde",
+                "alonso.ugalde.aguilar@mep.go.cr", "85090266", "SubsidiaryAdmin");
 
             await CheckAdminAsync(admin);
             await CheckCustomerAsync(customer);
+            await CheckDeliveryGuyAsync(deliveryGuy);
+            await CheckDispatcherAsync(dispatcher);
+            await CheckFranchiseAdminAsync(franchiseAdmin);
+            await CheckSubsidiaryAdminAsync(subsidiaryAdmin);
         }
-        private async Task CheckFranchisesAsync()
+
+        private async Task CheckDeliveryPayment()
         {
-            if (!_dataContext.Franchises.Any())
+            if (!_dataContext.DeliveryPayments.Any())
             {
-                await _dataContext.Franchises.AddAsync(new Franchise
+                var delivery = await _dataContext.Deliveries.FirstOrDefaultAsync();
+                var payment = await _dataContext.Payments.FirstOrDefaultAsync(
+                    p => p.Amount.Equals("1200"));
+
+                await _dataContext.DeliveryPayments.AddAsync(new DeliveryPayment
                 {
-                    LegalId = "0000",
-                    LegalName = "",
-                    Name = "Super El buen precio",
-                });
-                await _dataContext.Franchises.AddAsync(new Franchise
-                {
-                    LegalId = "0000",
-                    LegalName = "",
-                    Name = "Taquería La Esquina",
+                    Delivery = delivery,
+                    Payment = payment,
                 });
                 await _dataContext.SaveChangesAsync();
             }
         }
 
+        private async Task CheckProductPayments()
+        {
+            if (!_dataContext.ProductPayments.Any())
+            {
+                var product1 = await _dataContext.ProductsToDeliver.FirstOrDefaultAsync(
+                    p => p.Product.Product.Barcode.Equals("123456789"));
+                var product2 = await _dataContext.ProductsToDeliver.FirstOrDefaultAsync(
+                    p => p.Product.Product.Barcode.Equals("2222222"));
+                var payment1 = await _dataContext.Payments.FirstOrDefaultAsync(
+                    p => p.Amount.Equals("800"));
+                var payment2 = await _dataContext.Payments.FirstOrDefaultAsync(
+                    p => p.Amount.Equals("950"));
+
+                await _dataContext.ProductPayments.AddAsync(new ProductPayment
+                {
+                     ProductToDeliver = product1,
+                     Payment = payment1,
+                });
+                await _dataContext.ProductPayments.AddAsync(new ProductPayment
+                {
+                    ProductToDeliver = product2,
+                    Payment = payment2,
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckCardsAsync()
+        {
+            var owner = await _dataContext.Customers.FirstOrDefaultAsync();
+
+            if (!_dataContext.Cards.Any())
+            {
+                await _dataContext.Cards.AddAsync(new Card
+                {
+                    Number = "1234567891234567",
+                    Owner = owner.User,
+                    OwnerName = owner.User.FullName,
+                    GoodThru = new DateTime(2023,10,01),
+                    SecurityNumber = "123",
+                });
+                await _dataContext.Cards.AddAsync(new Card
+                {
+                    Number = "9876543210234567",
+                    Owner = owner.User,
+                    OwnerName = owner.User.FullName,
+                    GoodThru = new DateTime(2024, 10, 01),
+                    SecurityNumber = "321",
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckPaymentsAsync()
+        {
+            if (!_dataContext.Payments.Any())
+            {
+                var paymentMethod = await _dataContext.PaymentMethods.FirstOrDefaultAsync();
+                var customer = await _dataContext.Customers.FirstOrDefaultAsync();
+
+                var payment1 = new Payment
+                {
+                    Amount = 800,
+                    Date = new DateTime(2020, 05, 24),
+                    PaymentMethod = paymentMethod,
+                    User = customer.User,
+                };
+                var payment2 = new Payment
+                {
+                    Amount = 950,
+                    Date = new DateTime(2020, 05, 24),
+                    PaymentMethod = paymentMethod,
+                    User = customer.User,
+                };
+                var payment3 = new Payment
+                {
+                    Amount = 1200,
+                    Date = new DateTime(2020, 05, 24),
+                    PaymentMethod = paymentMethod,
+                    User = customer.User,
+                };
+
+                await _dataContext.Payments.AddAsync(payment1);
+                await _dataContext.Payments.AddAsync(payment2);
+                await _dataContext.Payments.AddAsync(payment3);
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckPackageAsync()
+        {
+            var customer = await _dataContext.Customers.FirstOrDefaultAsync();
+            var dispatcher = await _dataContext.Dispatchers.FirstOrDefaultAsync();
+            var delivery = await _dataContext.Deliveries.FirstOrDefaultAsync();
+
+            if (!_dataContext.Packages.Any())
+            {
+                await _dataContext.Packages.AddAsync(new Package
+                {
+                    Customer = customer.User,
+                    Sender = dispatcher.User,
+                    Price = 1750,
+                    Delivery = delivery,
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckProductToDeliverAsync()
+        {
+            if (!_dataContext.ProductsToDeliver.Any())
+            {
+                var product1 = await _dataContext.SubsidiaryProducts.FirstOrDefaultAsync(
+                    p => p.Product.Barcode.Equals("123456789"));
+                var product2 = await _dataContext.SubsidiaryProducts.FirstOrDefaultAsync(
+                    p => p.Product.Barcode.Equals("2222222"));
+                var package = await _dataContext.Packages.FirstOrDefaultAsync();
+
+                await _dataContext.ProductsToDeliver.AddAsync(new ProductToDeliver
+                {
+                    Product = product1,
+                    Package = package,
+                });
+                await _dataContext.ProductsToDeliver.AddAsync(new ProductToDeliver
+                {
+                    Product = product2,
+                    Package = package,
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckProductAsync()
+        {
+            var franchiseSuper = await _dataContext.Franchises.FirstOrDefaultAsync(
+                f => f.LegalId.Equals("0000"));
+            var franchiseTaqueria = await _dataContext.Franchises.FirstOrDefaultAsync(
+                f => f.LegalId.Equals("0001"));
+            var category1 = await _dataContext.Categories.FirstOrDefaultAsync(
+                c => c.Name.Equals("Abarrote"));
+            var category2 = await _dataContext.Categories.FirstOrDefaultAsync(
+                c => c.Name.Equals("Comida mejicana"));
+
+            if (!_dataContext.Products.Any())
+            {
+                await _dataContext.Products.AddAsync(new Product
+                {
+                    Name = "Caja de leche",
+                    Barcode = "123456789",
+                    Description = "Caja de litro de leche Dos Pinos",
+                    Franchise = franchiseSuper,
+                    PicturePath = "./images/noimage.png",
+                    Price = 800,
+                    Category = category1,
+                });
+                await _dataContext.Products.AddAsync(new Product
+                {
+                    Name = "Bolsa de café",
+                    Barcode = "2222222",
+                    Description = "Bolsa de café 1820 350 gr",
+                    Franchise = franchiseSuper,
+                    PicturePath = "./images/noimage.png",
+                    Price = 950,
+                    Category = category1,
+                });
+                await _dataContext.Products.AddAsync(new Product
+                {
+                    Name = "Hamburguesa",
+                    Barcode = "987654321",
+                    Description = "Hamburguesa con torta de carne",
+                    Franchise = franchiseTaqueria,
+                    PicturePath = "./images/noimage.png",
+                    Price = 1200,
+                    Category = category2,
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private Task CheckDeliveryDetailsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        private async Task CheckDeliveryAsync()
+        {
+            if (!_dataContext.Deliveries.Any())
+            {
+                var deliveryGuy = await _dataContext.DeliveryGuys.FirstOrDefaultAsync();
+
+                await _dataContext.Deliveries.AddAsync(new Delivery
+                {
+                    CreationDate = new DateTime(2020,05,24),
+                    SendDate = new DateTime(2020, 05, 24),
+                    DeliveryDate = new DateTime(2020,05,24),
+                    Commission = 10,
+                    CommissionBilled = 120,
+                    Price = 1200,
+                    Qualification = 4,
+                    Remarks = "Excelente servicio",
+                    DeliveryGuy = deliveryGuy,
+                    Source = "Mini super",
+                    SourceLatitude = 10.209025,
+                    SourceLongitude = -83.798296,
+                    Target = "Mi casa",
+                    TargetLatitude = 10.212478,
+                    TargetLongitude = -83.798241,
+                    State = DeliveryState.Delivered,
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckSubsidiaryProductsAsync()
+        {
+            var subsidiarySuper = await _dataContext.Subsidiaries.FirstOrDefaultAsync(
+                s => s.Franchise.Name.Equals("Super El buen precio"));
+            var subsidiaryTaqueria = await _dataContext.Subsidiaries.FirstOrDefaultAsync(
+                s => s.Franchise.Name.Equals("Taquería La Esquina"));
+            var cajaLeche = await _dataContext.Products.FirstOrDefaultAsync(
+                p => p.Barcode.Equals("123456789"));
+            var bolsaCafe = await _dataContext.Products.FirstOrDefaultAsync(
+                p => p.Barcode.Equals("2222222")); 
+            var hamburguesa = await _dataContext.Products.FirstOrDefaultAsync(
+                p => p.Barcode.Equals("987654321"));
+
+            if (!_dataContext.SubsidiaryProducts.Any())
+            {
+                await _dataContext.SubsidiaryProducts.AddAsync(new SubsidiaryProduct
+                {
+                    Subsidiary =subsidiarySuper,
+                    Product = cajaLeche,
+                    Rating = 4,
+                    Active = true,
+                });
+                await _dataContext.SubsidiaryProducts.AddAsync(new SubsidiaryProduct
+                {
+                    Subsidiary = subsidiarySuper,
+                    Product = bolsaCafe,
+                    Rating = 4.75,
+                    Active = true,
+                });
+                await _dataContext.SubsidiaryProducts.AddAsync(new SubsidiaryProduct
+                {
+                    Subsidiary = subsidiaryTaqueria,
+                    Product = hamburguesa,
+                    Rating = 4.5,
+                    Active = true,
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckSubsidiarysAsync()
+        {
+            var franchiseSuper = await _dataContext.Franchises.FirstOrDefaultAsync(
+                f => f.LegalId.Equals("0000"));
+            var franchiseTaqueria = await _dataContext.Franchises.FirstOrDefaultAsync(
+                f => f.LegalId.Equals("0001"));
+            var town = await _dataContext.Towns.FirstOrDefaultAsync(
+                t => t.Name.Equals("Guápiles"));
+
+            if (!_dataContext.Subsidiaries.Any())
+            {
+                await _dataContext.Subsidiaries.AddAsync(new Subsidiary
+                {
+                    Address = "A 100 mts de ahí",
+                    Franchise = franchiseSuper,
+                    CardOnly = false,
+                    Town = town,
+                });
+                await _dataContext.Subsidiaries.AddAsync(new Subsidiary
+                {
+                    Address = "A 300 mts de ahí",
+                    Franchise = franchiseTaqueria,
+                    CardOnly = true,
+                    Town = town,
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckMarketSegmentsAsync()
+        {
+            if (!_dataContext.MarketSegments.Any())
+            {
+                await _dataContext.MarketSegments.AddAsync(new MarketSegment
+                {
+                    Name = "General",
+                });
+                await _dataContext.MarketSegments.AddAsync(new MarketSegment
+                {
+                    Name = "Asian food",
+                });
+                await _dataContext.MarketSegments.AddAsync(new MarketSegment
+                {
+                    Name = "Mexican food",
+                });
+                await _dataContext.MarketSegments.AddAsync(new MarketSegment
+                {
+                    Name = "Criollo food",
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckPaymentMethodsAsync()
+        {
+            if (!_dataContext.PaymentMethods.Any())
+            {
+                await _dataContext.PaymentMethods.AddAsync(new PaymentMethod
+                {
+                    Name = "Card",
+                });
+                await _dataContext.PaymentMethods.AddAsync(new PaymentMethod
+                {
+                    Name = "Cash",
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckCategoriesAsync()
+        {
+            if (!_dataContext.Categories.Any())
+            {
+                await _dataContext.Categories.AddAsync(new Category
+                {
+                    Name = "Comida mejicana",
+                });
+                await _dataContext.Categories.AddAsync(new Category
+                {
+                    Name = "Abarrote",
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckFranchisesTypesAsync()
+        {
+            if (!_dataContext.FranchiseTypes.Any())
+            {
+                await _dataContext.FranchiseTypes.AddAsync(new FranchiseType
+                {
+                       Name = "Fast food",
+                });
+                await _dataContext.FranchiseTypes.AddAsync(new FranchiseType
+                {
+                    Name = "MiniSuper",
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckFranchisesAsync()
+        {
+            var super = await _dataContext.FranchiseTypes.FirstOrDefaultAsync(
+                t => t.Name.Equals("MiniSuper"));
+            var fastFood = await _dataContext.FranchiseTypes.FirstOrDefaultAsync(
+                t => t.Name.Equals("Fast food"));
+            var marketSegment1 = await _dataContext.MarketSegments.FirstOrDefaultAsync(
+                m => m.Name.Equals("General"));
+            var marketSegment2 = await _dataContext.MarketSegments.FirstOrDefaultAsync(
+                m => m.Name.Equals("Mexican food"));
+
+            if (!_dataContext.Franchises.Any())
+            {
+                await _dataContext.Franchises.AddAsync(new Franchise
+                {
+                    LegalId = "0000",
+                    LegalName = "Huang S.A.",
+                    Name = "Super El buen precio",
+                    FranchiseType = super,
+                    PicturePath = "./images/noimage.png",
+                    MarketSegment = marketSegment1,
+                    Rating = 5,
+                });
+                await _dataContext.Franchises.AddAsync(new Franchise
+                {
+                    LegalId = "0001",
+                    LegalName = "José Pérez",
+                    Name = "Taquería La Esquina",
+                    FranchiseType = fastFood,
+                    PicturePath = "./images/noimage.png",
+                    MarketSegment = marketSegment1,
+                    Rating = 5,
+                });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        #region User's
         private async Task CheckRoles()
         {
             await _userHelper.CheckRoleAsync("Admin");
-            await _userHelper.CheckRoleAsync("FranchiseAdmin");
-            await _userHelper.CheckRoleAsync("GymAdmin");
-            await _userHelper.CheckRoleAsync("Trainer");
             await _userHelper.CheckRoleAsync("Customer");
+            await _userHelper.CheckRoleAsync("DeliveryGuy");
+            await _userHelper.CheckRoleAsync("Dispatcher");
+            await _userHelper.CheckRoleAsync("FranchiseAdmin");
+            await _userHelper.CheckRoleAsync("SubsidiaryAdmin");
         }
 
-        private async Task<User> CheckUserAsync(string firstName, string lastName1, string lastName2,
-            string email, string phone, string address, string role)
+        private async Task CheckFranchiseAdminAsync(User franchiseAdmin)
         {
-            var user = await _userHelper.GetUserByEmailAsync(email);
+            var franchise = await _dataContext.Franchises.FirstOrDefaultAsync();
 
-            if (user == null)
+            if (!_dataContext.FranchiseAdmins.Any())
             {
-                Town town = _dataContext.Towns.FirstOrDefault(t => t.Name.Equals("Guápiles"));
-
-                user = new User
-                {
-                    FirstName = firstName,
-                    LastName1 = lastName1,
-                    LastName2 = lastName2,
-                    Email = email,
-                    UserName = email,
-                    PhoneNumber = phone,
-                    Address = address,
-                    Town = town
-                };
-
-                await _userHelper.AddUserAsync(user, "123456");
-                await _userHelper.AddUserToRoleAsync(user, role);
+                await _dataContext.FranchiseAdmins.AddAsync(new FranchiseAdmin 
+                { User = franchiseAdmin, Franchise = franchise });
+                await _dataContext.SaveChangesAsync();
             }
+        }
 
-            return user;
+        private async Task CheckSubsidiaryAdminAsync(User subsidiaryAdmin)
+        {
+            var subsidiary = await _dataContext.Subsidiaries.FirstOrDefaultAsync();
+
+            if (!_dataContext.SubsidiaryAdmins.Any())
+            {
+                await _dataContext.SubsidiaryAdmins.AddAsync(new SubsidiaryAdmin
+                { User = subsidiaryAdmin, Subsidiary = subsidiary });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckDispatcherAsync(User dispatcher)
+        {
+            var subsidiary = await _dataContext.Subsidiaries.FirstOrDefaultAsync();
+            if (!_dataContext.Dispatchers.Any())
+            {
+                await _dataContext.Dispatchers.AddAsync(new Dispatcher
+                { User = dispatcher, Subsidiary = subsidiary });
+                await _dataContext.SaveChangesAsync();
+            }
+        }
+
+        private async Task CheckDeliveryGuyAsync(User deliveryGuy)
+        {
+            if (!_dataContext.DeliveryGuys.Any())
+            {
+                await _dataContext.DeliveryGuys.AddAsync(new DeliveryGuy { User = deliveryGuy });
+                await _dataContext.SaveChangesAsync();
+            }
         }
 
         private async Task CheckCustomerAsync(User user)
         {
             if (!_dataContext.Customers.Any())
             {
-                var masculino = await _dataContext.Genders.FirstOrDefaultAsync(t => t.Name.Equals("Masculino"));
-                var gym = await _dataContext.Gyms.FirstOrDefaultAsync();
-                DateTime birthday = new DateTime(1984, 04, 01);
-                var somatotype = await _dataContext.Somatotypes.FirstOrDefaultAsync();
-
                 var customer = new Customer
                 {
                     User = user,
-                    Gender = masculino,
-                    Birthday = birthday,
-                    Somatotype = somatotype,
                 };
 
                 await _dataContext.Customers.AddAsync(customer);
-
-                await _dataContext.Memberships.AddAsync(new Membership
-                {
-                    Customer = customer,
-                    LocalGym = gym,
-                });
 
                 await _dataContext.SaveChangesAsync();
             }
@@ -132,6 +569,33 @@ namespace Xpress.Web.Data.Entities
             }
         }
 
+        private async Task<User> CheckUserAsync(string firstName, string lastName,
+            string email, string phone, string role)
+        {
+            var user = await _userHelper.GetUserByEmailAsync(email);
+
+            if (user == null)
+            {
+                Town town = _dataContext.Towns.FirstOrDefault(t => t.Name.Equals("Guápiles"));
+
+                user = new User
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Email = email,
+                    UserName = email,
+                    PhoneNumber = phone,
+                };
+
+                await _userHelper.AddUserAsync(user, "123456");
+                await _userHelper.AddUserToRoleAsync(user, role);
+            }
+
+            return user;
+        }
+        #endregion
+
+        #region Geo
         private async Task CheckTownsAsync()
         {
             if (!_dataContext.Towns.Any())
@@ -203,7 +667,6 @@ namespace Xpress.Web.Data.Entities
             }
         }
 
-        #region AddCounties
         private async Task AddSanJoseCountiesAsync(State state)
         {
             await _dataContext.Counties.AddAsync(new County { Name = "San José", State = state });
@@ -320,7 +783,6 @@ namespace Xpress.Web.Data.Entities
             await _dataContext.Counties.AddAsync(new County { Name = "Guácimo", State = state });
             await _dataContext.SaveChangesAsync();
         }
-        #endregion
 
         private async Task AddSanJoseProvinceDistritsAsync()
         {
@@ -356,7 +818,6 @@ namespace Xpress.Web.Data.Entities
             await AddGuacimoDistrictsAsync();
         }
 
-        #region Limon's (Province) Districts (Ready)
         private async Task AddGuacimoDistrictsAsync()
         {
             County county = _dataContext.Counties.FirstOrDefault(p => p.Name.Equals("Guácimo"));
@@ -422,9 +883,7 @@ namespace Xpress.Web.Data.Entities
             await _dataContext.Districts.AddAsync(new District { Name = "Matama", County = county });
             await _dataContext.SaveChangesAsync();
         }
-        #endregion
 
-        #region San Jose's (Province) Districts
         private Task AddTurrubaresDistrictsAsync()
         {
             throw new NotImplementedException();
