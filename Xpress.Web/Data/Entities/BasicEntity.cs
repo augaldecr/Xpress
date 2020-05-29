@@ -9,5 +9,7 @@ namespace Xpress.Web.Data.Entities
         [Required(ErrorMessage = "The field {0} is required")]
         [MaxLength(50, ErrorMessage = "The field {0} must have {1} characters")]
         public string Name { get; set; }
+
+        public bool Disabled { get; set; }
     }
 }

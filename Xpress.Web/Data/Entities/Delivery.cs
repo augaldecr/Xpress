@@ -87,6 +87,8 @@ namespace Xpress.Web.Data.Entities
         [Required(ErrorMessage = "The field {0} is required")]
         public double CommissionBilled { get; set; }
 
+        public bool Disabled { get; set; }
+
         public DeliveryState State { get; set; }
 
         public virtual ICollection<DeliveryDetail> DeliveryDetails { get; set; }

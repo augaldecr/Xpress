@@ -17,14 +17,14 @@ namespace Xpress.Web.Data
         private readonly DataContext _dataContext;
         private readonly IUserHelper _userHelper;
 
-        public DBInitializer(DataContext dataContext, 
+        public DBInitializer(DataContext dataContext,
             IUserHelper userHelper)
         {
             _dataContext = dataContext;
-            this._userHelper = userHelper;
+            _userHelper = userHelper;
         }
 
-        public async Task SeedAsync()
+        public async Task Initialize()
         {
             await _dataContext.Database.EnsureCreatedAsync();
 
@@ -40,23 +40,13 @@ namespace Xpress.Web.Data
 
             //Franchise's section
             await CheckFranchisesTypesAsync();
-            await CheckCategoriesAsync();
             await CheckMarketSegmentsAsync();
-            
 
-            //Example's section
+            //Franchise Example section
             await CheckFranchisesAsync();
             await CheckSubsidiarysAsync();
-            await CheckSubsidiaryProductsAsync();
-            await CheckDeliveryAsync();
-            await CheckDeliveryDetailsAsync();
-            await CheckProductAsync();
-            await CheckProductToDeliverAsync();
-            await CheckPackageAsync();
-            await CheckCardsAsync();
-            await CheckPaymentsAsync();
-            await CheckProductPayments();
-            await CheckDeliveryPayment();
+
+            await CheckCategoriesAsync();
 
             //User's section
             await CheckRoles();
@@ -80,14 +70,28 @@ namespace Xpress.Web.Data
             await CheckDispatcherAsync(dispatcher);
             await CheckFranchiseAdminAsync(franchiseAdmin);
             await CheckSubsidiaryAdminAsync(subsidiaryAdmin);
+
+            //Example's section
+            await CheckProductAsync();
+            await CheckSubsidiaryProductsAsync();
+
+            await CheckDeliveryAsync();
+            //await CheckDeliveryDetailsAsync();
+
+            await CheckPackageAsync();
+            await CheckProductToDeliverAsync(); 
+            await CheckCardsAsync();
+            await CheckPaymentsAsync();
+            await CheckProductPayments();
+            await CheckDeliveryPayment();
         }
 
         private async Task CheckDeliveryPayment()
         {
             if (!_dataContext.DeliveryPayments.Any())
             {
-                var delivery = await _dataContext.Deliveries.FirstOrDefaultAsync();
-                var payment = await _dataContext.Payments.FirstOrDefaultAsync(
+                Delivery delivery = await _dataContext.Deliveries.FirstOrDefaultAsync();
+                Payment payment = await _dataContext.Payments.FirstOrDefaultAsync(
                     p => p.Amount.Equals("1200"));
 
                 await _dataContext.DeliveryPayments.AddAsync(new DeliveryPayment
@@ -103,19 +107,19 @@ namespace Xpress.Web.Data
         {
             if (!_dataContext.ProductPayments.Any())
             {
-                var product1 = await _dataContext.ProductsToDeliver.FirstOrDefaultAsync(
+                ProductToDeliver product1 = await _dataContext.ProductsToDeliver.FirstOrDefaultAsync(
                     p => p.Product.Product.Barcode.Equals("123456789"));
-                var product2 = await _dataContext.ProductsToDeliver.FirstOrDefaultAsync(
+                ProductToDeliver product2 = await _dataContext.ProductsToDeliver.FirstOrDefaultAsync(
                     p => p.Product.Product.Barcode.Equals("2222222"));
-                var payment1 = await _dataContext.Payments.FirstOrDefaultAsync(
+                Payment payment1 = await _dataContext.Payments.FirstOrDefaultAsync(
                     p => p.Amount.Equals("800"));
-                var payment2 = await _dataContext.Payments.FirstOrDefaultAsync(
+                Payment payment2 = await _dataContext.Payments.FirstOrDefaultAsync(
                     p => p.Amount.Equals("950"));
 
                 await _dataContext.ProductPayments.AddAsync(new ProductPayment
                 {
-                     ProductToDeliver = product1,
-                     Payment = payment1,
+                    ProductToDeliver = product1,
+                    Payment = payment1,
                 });
                 await _dataContext.ProductPayments.AddAsync(new ProductPayment
                 {
@@ -128,7 +132,7 @@ namespace Xpress.Web.Data
 
         private async Task CheckCardsAsync()
         {
-            var owner = await _dataContext.Customers.FirstOrDefaultAsync();
+            Customer owner = await _dataContext.Customers.FirstOrDefaultAsync();
 
             if (!_dataContext.Cards.Any())
             {
@@ -137,7 +141,7 @@ namespace Xpress.Web.Data
                     Number = "1234567891234567",
                     Owner = owner.User,
                     OwnerName = owner.User.FullName,
-                    GoodThru = new DateTime(2023,10,01),
+                    GoodThru = new DateTime(2023, 10, 01),
                     SecurityNumber = "123",
                 });
                 await _dataContext.Cards.AddAsync(new Card
@@ -156,24 +160,24 @@ namespace Xpress.Web.Data
         {
             if (!_dataContext.Payments.Any())
             {
-                var paymentMethod = await _dataContext.PaymentMethods.FirstOrDefaultAsync();
-                var customer = await _dataContext.Customers.FirstOrDefaultAsync();
+                PaymentMethod paymentMethod = await _dataContext.PaymentMethods.FirstOrDefaultAsync();
+                Customer customer = await _dataContext.Customers.FirstOrDefaultAsync();
 
-                var payment1 = new Payment
+                Payment payment1 = new Payment
                 {
                     Amount = 800,
                     Date = new DateTime(2020, 05, 24),
                     PaymentMethod = paymentMethod,
                     User = customer.User,
                 };
-                var payment2 = new Payment
+                Payment payment2 = new Payment
                 {
                     Amount = 950,
                     Date = new DateTime(2020, 05, 24),
                     PaymentMethod = paymentMethod,
                     User = customer.User,
                 };
-                var payment3 = new Payment
+                Payment payment3 = new Payment
                 {
                     Amount = 1200,
                     Date = new DateTime(2020, 05, 24),
@@ -190,9 +194,9 @@ namespace Xpress.Web.Data
 
         private async Task CheckPackageAsync()
         {
-            var customer = await _dataContext.Customers.FirstOrDefaultAsync();
-            var dispatcher = await _dataContext.Dispatchers.FirstOrDefaultAsync();
-            var delivery = await _dataContext.Deliveries.FirstOrDefaultAsync();
+            Customer customer = await _dataContext.Customers.FirstOrDefaultAsync();
+            Dispatcher dispatcher = await _dataContext.Dispatchers.FirstOrDefaultAsync();
+            Delivery delivery = await _dataContext.Deliveries.FirstOrDefaultAsync();
 
             if (!_dataContext.Packages.Any())
             {
@@ -211,11 +215,11 @@ namespace Xpress.Web.Data
         {
             if (!_dataContext.ProductsToDeliver.Any())
             {
-                var product1 = await _dataContext.SubsidiaryProducts.FirstOrDefaultAsync(
+                SubsidiaryProduct product1 = await _dataContext.SubsidiaryProducts.FirstOrDefaultAsync(
                     p => p.Product.Barcode.Equals("123456789"));
-                var product2 = await _dataContext.SubsidiaryProducts.FirstOrDefaultAsync(
+                SubsidiaryProduct product2 = await _dataContext.SubsidiaryProducts.FirstOrDefaultAsync(
                     p => p.Product.Barcode.Equals("2222222"));
-                var package = await _dataContext.Packages.FirstOrDefaultAsync();
+                Package package = await _dataContext.Packages.FirstOrDefaultAsync();
 
                 await _dataContext.ProductsToDeliver.AddAsync(new ProductToDeliver
                 {
@@ -233,13 +237,13 @@ namespace Xpress.Web.Data
 
         private async Task CheckProductAsync()
         {
-            var franchiseSuper = await _dataContext.Franchises.FirstOrDefaultAsync(
+            Franchise franchiseSuper = await _dataContext.Franchises.FirstOrDefaultAsync(
                 f => f.LegalId.Equals("0000"));
-            var franchiseTaqueria = await _dataContext.Franchises.FirstOrDefaultAsync(
+            Franchise franchiseTaqueria = await _dataContext.Franchises.FirstOrDefaultAsync(
                 f => f.LegalId.Equals("0001"));
-            var category1 = await _dataContext.Categories.FirstOrDefaultAsync(
+            Category category1 = await _dataContext.Categories.FirstOrDefaultAsync(
                 c => c.Name.Equals("Abarrote"));
-            var category2 = await _dataContext.Categories.FirstOrDefaultAsync(
+            Category category2 = await _dataContext.Categories.FirstOrDefaultAsync(
                 c => c.Name.Equals("Comida mejicana"));
 
             if (!_dataContext.Products.Any())
@@ -287,13 +291,13 @@ namespace Xpress.Web.Data
         {
             if (!_dataContext.Deliveries.Any())
             {
-                var deliveryGuy = await _dataContext.DeliveryGuys.FirstOrDefaultAsync();
+                DeliveryGuy deliveryGuy = await _dataContext.DeliveryGuys.FirstOrDefaultAsync();
 
                 await _dataContext.Deliveries.AddAsync(new Delivery
                 {
-                    CreationDate = new DateTime(2020,05,24),
+                    CreationDate = new DateTime(2020, 05, 24),
                     SendDate = new DateTime(2020, 05, 24),
-                    DeliveryDate = new DateTime(2020,05,24),
+                    DeliveryDate = new DateTime(2020, 05, 24),
                     Commission = 10,
                     CommissionBilled = 120,
                     Price = 1200,
@@ -314,22 +318,22 @@ namespace Xpress.Web.Data
 
         private async Task CheckSubsidiaryProductsAsync()
         {
-            var subsidiarySuper = await _dataContext.Subsidiaries.FirstOrDefaultAsync(
+            Subsidiary subsidiarySuper = await _dataContext.Subsidiaries.FirstOrDefaultAsync(
                 s => s.Franchise.Name.Equals("Super El buen precio"));
-            var subsidiaryTaqueria = await _dataContext.Subsidiaries.FirstOrDefaultAsync(
+            Subsidiary subsidiaryTaqueria = await _dataContext.Subsidiaries.FirstOrDefaultAsync(
                 s => s.Franchise.Name.Equals("Taquería La Esquina"));
-            var cajaLeche = await _dataContext.Products.FirstOrDefaultAsync(
+            Product cajaLeche = await _dataContext.Products.FirstOrDefaultAsync(
                 p => p.Barcode.Equals("123456789"));
-            var bolsaCafe = await _dataContext.Products.FirstOrDefaultAsync(
-                p => p.Barcode.Equals("2222222")); 
-            var hamburguesa = await _dataContext.Products.FirstOrDefaultAsync(
+            Product bolsaCafe = await _dataContext.Products.FirstOrDefaultAsync(
+                p => p.Barcode.Equals("2222222"));
+            Product hamburguesa = await _dataContext.Products.FirstOrDefaultAsync(
                 p => p.Barcode.Equals("987654321"));
 
             if (!_dataContext.SubsidiaryProducts.Any())
             {
                 await _dataContext.SubsidiaryProducts.AddAsync(new SubsidiaryProduct
                 {
-                    Subsidiary =subsidiarySuper,
+                    Subsidiary = subsidiarySuper,
                     Product = cajaLeche,
                     Rating = 4,
                     Active = true,
@@ -354,11 +358,11 @@ namespace Xpress.Web.Data
 
         private async Task CheckSubsidiarysAsync()
         {
-            var franchiseSuper = await _dataContext.Franchises.FirstOrDefaultAsync(
+            Franchise franchiseSuper = await _dataContext.Franchises.FirstOrDefaultAsync(
                 f => f.LegalId.Equals("0000"));
-            var franchiseTaqueria = await _dataContext.Franchises.FirstOrDefaultAsync(
+            Franchise franchiseTaqueria = await _dataContext.Franchises.FirstOrDefaultAsync(
                 f => f.LegalId.Equals("0001"));
-            var town = await _dataContext.Towns.FirstOrDefaultAsync(
+            Town town = await _dataContext.Towns.FirstOrDefaultAsync(
                 t => t.Name.Equals("Guápiles"));
 
             if (!_dataContext.Subsidiaries.Any())
@@ -423,15 +427,22 @@ namespace Xpress.Web.Data
 
         private async Task CheckCategoriesAsync()
         {
+            var franchiseRest = await _dataContext.Franchises.FirstOrDefaultAsync(
+                f => f.LegalId == "0001");
+            var franchiseSuper = await _dataContext.Franchises.FirstOrDefaultAsync(
+                f => f.LegalId == "0000");
+
             if (!_dataContext.Categories.Any())
             {
                 await _dataContext.Categories.AddAsync(new Category
                 {
                     Name = "Comida mejicana",
+                    Franchise = franchiseRest,
                 });
                 await _dataContext.Categories.AddAsync(new Category
                 {
                     Name = "Abarrote",
+                    Franchise = franchiseSuper,
                 });
                 await _dataContext.SaveChangesAsync();
             }
@@ -443,7 +454,7 @@ namespace Xpress.Web.Data
             {
                 await _dataContext.FranchiseTypes.AddAsync(new FranchiseType
                 {
-                       Name = "Fast food",
+                    Name = "Fast food",
                 });
                 await _dataContext.FranchiseTypes.AddAsync(new FranchiseType
                 {
@@ -455,13 +466,13 @@ namespace Xpress.Web.Data
 
         private async Task CheckFranchisesAsync()
         {
-            var super = await _dataContext.FranchiseTypes.FirstOrDefaultAsync(
+            FranchiseType super = await _dataContext.FranchiseTypes.FirstOrDefaultAsync(
                 t => t.Name.Equals("MiniSuper"));
-            var fastFood = await _dataContext.FranchiseTypes.FirstOrDefaultAsync(
+            FranchiseType fastFood = await _dataContext.FranchiseTypes.FirstOrDefaultAsync(
                 t => t.Name.Equals("Fast food"));
-            var marketSegment1 = await _dataContext.MarketSegments.FirstOrDefaultAsync(
+            MarketSegment marketSegment1 = await _dataContext.MarketSegments.FirstOrDefaultAsync(
                 m => m.Name.Equals("General"));
-            var marketSegment2 = await _dataContext.MarketSegments.FirstOrDefaultAsync(
+            MarketSegment marketSegment2 = await _dataContext.MarketSegments.FirstOrDefaultAsync(
                 m => m.Name.Equals("Mexican food"));
 
             if (!_dataContext.Franchises.Any())
@@ -503,11 +514,11 @@ namespace Xpress.Web.Data
 
         private async Task CheckFranchiseAdminAsync(User franchiseAdmin)
         {
-            var franchise = await _dataContext.Franchises.FirstOrDefaultAsync();
+            Franchise franchise = await _dataContext.Franchises.FirstOrDefaultAsync();
 
             if (!_dataContext.FranchiseAdmins.Any())
             {
-                await _dataContext.FranchiseAdmins.AddAsync(new FranchiseAdmin 
+                await _dataContext.FranchiseAdmins.AddAsync(new FranchiseAdmin
                 { User = franchiseAdmin, Franchise = franchise });
                 await _dataContext.SaveChangesAsync();
             }
@@ -515,7 +526,7 @@ namespace Xpress.Web.Data
 
         private async Task CheckSubsidiaryAdminAsync(User subsidiaryAdmin)
         {
-            var subsidiary = await _dataContext.Subsidiaries.FirstOrDefaultAsync();
+            Subsidiary subsidiary = await _dataContext.Subsidiaries.FirstOrDefaultAsync();
 
             if (!_dataContext.SubsidiaryAdmins.Any())
             {
@@ -527,7 +538,7 @@ namespace Xpress.Web.Data
 
         private async Task CheckDispatcherAsync(User dispatcher)
         {
-            var subsidiary = await _dataContext.Subsidiaries.FirstOrDefaultAsync();
+            Subsidiary subsidiary = await _dataContext.Subsidiaries.FirstOrDefaultAsync();
             if (!_dataContext.Dispatchers.Any())
             {
                 await _dataContext.Dispatchers.AddAsync(new Dispatcher
@@ -549,7 +560,7 @@ namespace Xpress.Web.Data
         {
             if (!_dataContext.Customers.Any())
             {
-                var customer = new Customer
+                Customer customer = new Customer
                 {
                     User = user,
                 };
@@ -572,7 +583,7 @@ namespace Xpress.Web.Data
         private async Task<User> CheckUserAsync(string firstName, string lastName,
             string email, string phone, string role)
         {
-            var user = await _userHelper.GetUserByEmailAsync(email);
+            User user = await _userHelper.GetUserByEmailAsync(email);
 
             if (user == null)
             {
@@ -585,6 +596,7 @@ namespace Xpress.Web.Data
                     Email = email,
                     UserName = email,
                     PhoneNumber = phone,
+                    EmailConfirmed = true,
                 };
 
                 await _userHelper.AddUserAsync(user, "123456");

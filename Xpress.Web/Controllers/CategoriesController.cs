@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Xpress.Web.Data;
 using Xpress.Web.Data.Entities;
 
@@ -33,7 +30,7 @@ namespace Xpress.Web.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
+            Category category = await _context.Categories
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (category == null)
             {
@@ -73,7 +70,7 @@ namespace Xpress.Web.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
+            Category category = await _context.Categories.FindAsync(id);
             if (category == null)
             {
                 return NotFound();
@@ -124,7 +121,7 @@ namespace Xpress.Web.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
+            Category category = await _context.Categories
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (category == null)
             {
@@ -139,7 +136,7 @@ namespace Xpress.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
+            Category category = await _context.Categories.FindAsync(id);
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

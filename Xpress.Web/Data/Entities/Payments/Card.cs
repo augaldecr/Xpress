@@ -29,5 +29,7 @@ namespace Xpress.Web.Data.Entities.Payments
         public string SecurityNumber { get; set; }
 
         public User Owner { get; set; }
+
+        public bool Disabled { get; set; }
     }
 }

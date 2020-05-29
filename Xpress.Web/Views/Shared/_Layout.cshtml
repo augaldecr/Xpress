@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Xpress.Web</title>
+    <title>@ViewData["Title"] - Xpress</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
@@ -17,16 +17,66 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    <ul class="navbar-nav flex-grow-1 mr-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-dark dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Generales</a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Countries" asp-action="Index">País</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="States" asp-action="Index">Provincia</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Counties" asp-action="Index">Cantón</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Districts" asp-action="Index">Distrito</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Towns" asp-action="Index">Ciudad</a>
+                            </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-dark dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Franquicias</a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Franchises" asp-action="Index">Franquicias</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Products" asp-action="Index">Productos</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Subsidiaries" asp-action="Index">Sucursal</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="SubsidiaryProducts" asp-action="Index">Productos de sucursal</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="FranchiseTypes" asp-action="Index">Tipos de franquicia</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="MarketSegments" asp-action="Index">Segmentos de mercado</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Categorías</a>
+                            </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Countries" asp-action="Index">Countries</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Deliveries</a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Deliveries" asp-action="Index">Deliveries</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="DeliveryDetails" asp-action="Index">Detalles de delivery</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="ProductsToDeliver" asp-action="Index">Productos a entregar</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Packages" asp-action="Index">Paquetes</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="SubsidiaryProducts" asp-action="Index">Productos de sucursal</a>
+                            </div>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Usuarios</a>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Admins" asp-action="Index">Administradores</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="FranchiseAdmins" asp-action="Index">Administradores de franquicia</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="SubsidiaryAdmins" asp-action="Index">Administradores de sucursal</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Customers" asp-action="Index">Clientes</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="DeliveryGuys" asp-action="Index">Mensajeros</a>
+                                <a class="dropdown-item text-dark" asp-area="" asp-controller="Dispatchers" asp-action="Index">Despachadores</a>
+                            </div>
+                        </li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown ml-auto">
+                                <a class="nav-link dropdown-toggle text-dark" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Mi cuenta</a>
+                                <div class="dropdown-menu">
+                                    <a asp-area="" asp-controller="Accounts" asp-action="ChangeUser" class="dropdown-item text-dark">@User.Identity.Name</a>
+                                    <a asp-area="" asp-controller="Accounts" asp-action="Logout" class="dropdown-item text-dark">Logout</a>
+                                </div>
+                            </li>
+                            
+                        }
+                        else
+                        {
+                            <li class="nav-item ml-auto"><a asp-area="" asp-controller="Accounts" asp-action="Login" class="nav-link text-dark">Login</a></li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -40,7 +90,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2020 - Xpress.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2020 - Xpress
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

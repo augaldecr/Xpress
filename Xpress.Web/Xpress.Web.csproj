@@ -12,9 +12,18 @@
     <Compile Remove="Migrations\20200522204118_InitialDB.Designer.cs" />
     <Compile Remove="Migrations\20200523023534_InitialDB.cs" />
     <Compile Remove="Migrations\20200523023534_InitialDB.Designer.cs" />
+    <Compile Remove="Migrations\20200525035544_InitialDB.cs" />
+    <Compile Remove="Migrations\20200525035544_InitialDB.Designer.cs" />
+    <Compile Remove="Migrations\20200528004341_InitialDb.cs" />
+    <Compile Remove="Migrations\20200528004341_InitialDb.Designer.cs" />
+    <Compile Remove="Migrations\20200528034011_InitialDb.cs" />
+    <Compile Remove="Migrations\20200528034011_InitialDb.Designer.cs" />
+    <Compile Remove="Migrations\20200528173240_InitialDb.cs" />
+    <Compile Remove="Migrations\20200528173240_InitialDb.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
@@ -28,6 +37,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Xpress.Common\Xpress.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\API\" />
   </ItemGroup>
 
 </Project>

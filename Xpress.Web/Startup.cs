@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Xpress.Web.Data;
+using Xpress.Web.Helpers;
+using Microsoft.AspNetCore.Identity;
 
 namespace Xpress.Web
 {
@@ -28,6 +30,27 @@ namespace Xpress.Web
 
             services.AddDbContext<DataContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DataContext")));
+
+            services.AddTransient<DBInitializer>();
+
+            services.AddIdentity<User, IdentityRole>(cfg =>
+            {
+                cfg.User.RequireUniqueEmail = true;
+                cfg.SignIn.RequireConfirmedAccount = false;
+                cfg.SignIn.RequireConfirmedEmail = false;
+                cfg.SignIn.RequireConfirmedPhoneNumber = false;
+                cfg.Password.RequireDigit = false;
+                cfg.Password.RequiredUniqueChars = 0;
+                cfg.Password.RequireLowercase = false;
+                cfg.Password.RequireNonAlphanumeric = false;
+                cfg.Password.RequireUppercase = false;
+            }).AddEntityFrameworkStores<DataContext>()
+              .AddDefaultTokenProviders();
+
+            services.AddAuthorization();
+
+            services.AddScoped<ICombosHelper, CombosHelper>();
+            services.AddScoped<IUserHelper, UserHelper>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -43,6 +66,8 @@ namespace Xpress.Web
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseAuthentication();
 
             app.UseRouting();
 

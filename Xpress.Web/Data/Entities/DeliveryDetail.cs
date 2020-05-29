@@ -23,5 +23,7 @@ namespace Xpress.Web.Data.Entities
 
         [Required(ErrorMessage = "The field {0} is required")]
         public Delivery Delivery { get; set; }
+
+        public bool Disabled { get; set; }
     }
 }

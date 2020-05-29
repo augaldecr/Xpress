@@ -7,10 +7,10 @@ namespace Xpress.Web.Helpers
 {
     public class UserHelper : IUserHelper
     {
-        private readonly UserManager<User> _userManager;
+        private readonly DataContext _context;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<User> _signInManager;
-        private readonly DataContext _context;
+        private readonly UserManager<User> _userManager;
 
         public UserHelper(
             UserManager<User> userManager,

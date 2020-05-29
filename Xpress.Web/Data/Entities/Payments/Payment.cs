@@ -22,5 +22,7 @@ namespace Xpress.Web.Data.Entities.Payments
         [Required(ErrorMessage = "El campo {0} es requerido.")]
         [Display(Name = "Monto")]
         public float Amount { get; set; }
+
+        public bool Disabled { get; set; }
     }
 }

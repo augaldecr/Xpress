@@ -5,5 +5,7 @@
         public int Id { get; set; }
 
         public Payment Payment { get; set; }
+
+        public bool Disabled { get; set; }
     }
 }

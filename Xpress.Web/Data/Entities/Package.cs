@@ -22,6 +22,8 @@ namespace Xpress.Web.Data.Entities
         [DisplayFormat(DataFormatString = "{0:C}")]
         public double Price { get; set; }
 
+        public bool Disabled { get; set; }
+
         public virtual ICollection<ProductToDeliver> Products { get; set; }
     }
 }

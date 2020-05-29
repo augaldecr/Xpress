@@ -9,5 +9,7 @@ namespace Xpress.Web.Data.Entities.Users
         public User User { get; set; }
 
         public virtual ICollection<Package> Packages { get; set; }
+
+        public bool Disabled { get; set; }
     }
 }

@@ -7,5 +7,7 @@
         public SubsidiaryProduct Product { get; set; }
 
         public Package Package { get; set; }
+
+        public bool Disabled { get; set; }
     }
 }

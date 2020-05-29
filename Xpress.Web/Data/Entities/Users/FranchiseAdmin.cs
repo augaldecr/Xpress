@@ -7,5 +7,7 @@
         public User User { get; set; }
 
         public Franchise Franchise { get; set; }
+
+        public bool Disabled { get; set; }
     }
 }

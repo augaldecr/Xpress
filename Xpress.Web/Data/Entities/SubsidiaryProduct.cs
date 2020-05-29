@@ -14,5 +14,7 @@ namespace Xpress.Web.Data.Entities
         public Subsidiary Subsidiary { get; set; }
 
         public bool Active { get; set; }
+
+        public bool Disabled { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using Xpress.Web.Data.Entities;
 using Xpress.Web.Data.Entities.Common;
 using Xpress.Web.Data.Entities.Payments;
@@ -6,11 +8,28 @@ using Xpress.Web.Data.Entities.Users;
 
 namespace Xpress.Web.Data
 {
-    public class DataContext : DbContext
+    public class DataContext : IdentityDbContext<User>
     {
         public DataContext(DbContextOptions<DataContext> options)
             : base(options)
         {
+        }
+
+        public override int SaveChanges()
+        {
+            // Borrado Suave 
+            var entities = ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Deleted && e.Metadata.GetProperties()
+                .Any(x => x.Name == "Disabled"))
+                .ToList();
+
+            foreach (var entity in entities)
+            {
+                entity.State = EntityState.Unchanged;
+                entity.CurrentValues["Disabled"] = true;
+            }
+
+            return base.SaveChanges();
         }
 
         public DbSet<Admin> Admins { get; set; }
@@ -40,5 +59,6 @@ namespace Xpress.Web.Data
         public DbSet<SubsidiaryAdmin> SubsidiaryAdmins { get; set; }
         public DbSet<SubsidiaryProduct> SubsidiaryProducts { get; set; }
         public DbSet<Town> Towns { get; set; }
+        public DbSet<Xpress.Web.Data.Entities.Payments.Bill> Bill { get; set; }
     }
 }

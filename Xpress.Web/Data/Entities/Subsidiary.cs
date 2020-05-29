@@ -21,6 +21,8 @@ namespace Xpress.Web.Data.Entities
         [Required(ErrorMessage = "The field {0} is required")]
         public bool CardOnly { get; set; }
 
+        public bool Disabled { get; set; }
+
         public virtual ICollection<SubsidiaryProduct> Products { get; set; }
     }
 }

@@ -7,25 +7,28 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Xpress.Web.Data;
 using Xpress.Web.Data.Entities.Common;
+using Xpress.Web.Helpers;
 
 namespace Xpress.Web.Controllers.Common
 {
     public class StatesController : Controller
     {
         private readonly DataContext _context;
+        private readonly ICombosHelper _combosHelper;
 
-        public StatesController(DataContext context)
+        public StatesController(DataContext context, ICombosHelper combosHelper)
         {
             _context = context;
+            _combosHelper = combosHelper;
         }
 
-        // GET: States
         public async Task<IActionResult> Index()
         {
-            return View(await _context.States.ToListAsync());
+            return View(await _context.States
+                .Include(s => s.Country)
+                .ToListAsync());
         }
 
-        // GET: States/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,6 +37,7 @@ namespace Xpress.Web.Controllers.Common
             }
 
             var state = await _context.States
+                .Include(s => s.Country)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (state == null)
             {
@@ -43,15 +47,13 @@ namespace Xpress.Web.Controllers.Common
             return View(state);
         }
 
-        // GET: States/Create
-        public IActionResult Create()
+        public async Task<IActionResult> CreateAsync()
         {
+            var cmbCountries = await _combosHelper.GetComboCountriesAsync();
+
             return View();
         }
 
-        // POST: States/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] State state)
@@ -65,7 +67,6 @@ namespace Xpress.Web.Controllers.Common
             return View(state);
         }
 
-        // GET: States/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,7 +74,10 @@ namespace Xpress.Web.Controllers.Common
                 return NotFound();
             }
 
-            var state = await _context.States.FindAsync(id);
+            var state = await _context.States
+                .Include(s => s.Country)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
             if (state == null)
             {
                 return NotFound();
@@ -81,9 +85,6 @@ namespace Xpress.Web.Controllers.Common
             return View(state);
         }
 
-        // POST: States/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] State state)
@@ -116,7 +117,6 @@ namespace Xpress.Web.Controllers.Common
             return View(state);
         }
 
-        // GET: States/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -134,7 +134,6 @@ namespace Xpress.Web.Controllers.Common
             return View(state);
         }
 
-        // POST: States/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
