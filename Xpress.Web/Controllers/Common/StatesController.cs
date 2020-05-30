@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Xpress.Web.Data;
 using Xpress.Web.Data.Entities.Common;
 using Xpress.Web.Helpers;
@@ -36,7 +35,7 @@ namespace Xpress.Web.Controllers.Common
                 return NotFound();
             }
 
-            var state = await _context.States
+            State state = await _context.States
                 .Include(s => s.Country)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (state == null)
@@ -49,7 +48,7 @@ namespace Xpress.Web.Controllers.Common
 
         public async Task<IActionResult> CreateAsync()
         {
-            var cmbCountries = await _combosHelper.GetComboCountriesAsync();
+            IEnumerable<SelectListItem> cmbCountries = await _combosHelper.GetComboCountriesAsync();
 
             return View();
         }
@@ -74,7 +73,7 @@ namespace Xpress.Web.Controllers.Common
                 return NotFound();
             }
 
-            var state = await _context.States
+            State state = await _context.States
                 .Include(s => s.Country)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
@@ -124,7 +123,7 @@ namespace Xpress.Web.Controllers.Common
                 return NotFound();
             }
 
-            var state = await _context.States
+            State state = await _context.States
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (state == null)
             {
@@ -138,7 +137,7 @@ namespace Xpress.Web.Controllers.Common
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var state = await _context.States.FindAsync(id);
+            State state = await _context.States.FindAsync(id);
             _context.States.Remove(state);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

@@ -51,6 +51,8 @@ namespace Xpress.Web
 
             services.AddScoped<ICombosHelper, CombosHelper>();
             services.AddScoped<IUserHelper, UserHelper>();
+            services.AddScoped<IBlobHelper, BlobHelper>();
+            services.AddScoped<IMailHelper, MailHelper>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

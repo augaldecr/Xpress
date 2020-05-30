@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Xpress.Web.Models.Common
 {
-    public class StateViewModel
+    public class CountyViewModel
     {
         [Required(ErrorMessage = "El campo {0} es requerido.")]
         [Display(Name = "Nombre")]
@@ -15,5 +15,10 @@ namespace Xpress.Web.Models.Common
         public int CountryId { get; set; }
 
         public IEnumerable<SelectListItem> Countries { get; set; }
+
+        [Display(Name = "Provincia")]
+        public int StateId { get; set; }
+
+        public IEnumerable<SelectListItem> States { get; set; }
     }
 }

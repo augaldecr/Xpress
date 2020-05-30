@@ -10,6 +10,7 @@ namespace Xpress.Web.Helpers
         Task<IEnumerable<SelectListItem>> GetComboCountriesAsync();
         Task<IEnumerable<SelectListItem>> GetComboDistrictsAsync(int id);
         Task<IEnumerable<SelectListItem>> GetComboFranchisesAsync();
+        IEnumerable<SelectListItem> GetComboRoles();
         Task<IEnumerable<SelectListItem>> GetComboStatesAsync(int id);
         Task<IEnumerable<SelectListItem>> GetComboTownsAsync(int districtId);
     }

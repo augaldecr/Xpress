@@ -1,4 +1,4 @@
-﻿namespace Xpress.Common
+﻿namespace Xpress.Common.Enums
 {
     public enum DeliveryState
     {
